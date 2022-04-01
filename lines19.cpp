@@ -23,15 +23,7 @@ void Lines19::init()
 		balls.push_back(std::shared_ptr<Ball>(new Ball(posX, posY)));
 	}
 
-	for (int i = 0; i < SMALL_BALL_COUNT; i++)
-	{
-		do
-		{
-			posX = std::rand() % POS_X;
-			posY = std::rand() % POS_Y;
-		} while (isOccupied(posX, posY));
-		balls.push_back(std::shared_ptr<Ball>(new Ball(posX, posY, false)));
-	}
+	addSmallBalls();
 }
 
 // learning purposes only!!!
@@ -83,6 +75,15 @@ void Lines19::drawBalls()
 
 }
 
+void Lines19::nextTurn()
+{
+	for (std::vector<std::shared_ptr<Ball>>::iterator it = std::begin(balls); it != std::end(balls); ++it)
+	{
+		it->get()->grow();
+	}
+	addSmallBalls();
+}
+
 // learning purposes only!!!
 void Lines19::setRandomColor()
 {
@@ -104,4 +105,19 @@ const bool Lines19::isOccupied(const int posX, const int posY)
 	}
 
 	return result;
+}
+
+void Lines19::addSmallBalls()
+{
+	int posX = -1;
+	int posY = -1;
+	for (int i = 0; i < SMALL_BALL_COUNT; i++)
+	{
+		do
+		{
+			posX = std::rand() % POS_X;
+			posY = std::rand() % POS_Y;
+		} while (isOccupied(posX, posY));
+		balls.push_back(std::shared_ptr<Ball>(new Ball(posX, posY, false)));
+	}
 }

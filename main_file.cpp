@@ -32,18 +32,13 @@ Place, Fifth Floor, Boston, MA  02110 - 1301  USA
 #include "shaderprogram.h"
 #include "lines19.h"
 
-float speed = PI; //[radiany/s]
+bool nextTurn = false;
 
 void key_callback(GLFWwindow* window, int key,
 	int scancode, int action, int mods) {
 
 	if (action == GLFW_PRESS) {
-		if (key == GLFW_KEY_LEFT) speed = PI;
-		if (key == GLFW_KEY_RIGHT) speed = -PI;
-	}
-
-	if (action == GLFW_RELEASE) {
-		speed = 0;
+		if (key == GLFW_KEY_SPACE) nextTurn = true;
 	}
 }
 
@@ -67,7 +62,7 @@ void freeOpenGLProgram(GLFWwindow* window) {
 }
 
 //Procedura rysująca zawartość sceny
-void drawScene(GLFWwindow* window, Lines19 game) {
+void drawScene(GLFWwindow* window, Lines19& game) {
 	//************Tutaj umieszczaj kod rysujący obraz******************
 
 	glClearColor(0, 0.7, 0.5, 0);
@@ -85,7 +80,13 @@ void drawScene(GLFWwindow* window, Lines19 game) {
 	glUniformMatrix4fv(spLambert->u("P"), 1, false, glm::value_ptr(P));
 	glUniformMatrix4fv(spLambert->u("V"), 1, false, glm::value_ptr(V));
 
+	if (nextTurn)
+	{
+		game.nextTurn();
+		nextTurn = false;
+	}
 	game.drawBalls();
+
 	glfwSwapBuffers(window);
 }
 

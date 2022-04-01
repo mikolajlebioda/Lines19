@@ -11,6 +11,7 @@ public:
 	const int getPosX() const { return posX; };
 	const int getPosY() const { return posY; };
 	const bool isBigBall() const { return bigBall; };
+	void grow() { bigBall = true; };
 
 private:
 	int colorId;

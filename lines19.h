@@ -43,10 +43,12 @@ public:
 	void init();
 	void fillBoardWithBalls();
 	void drawBalls();
+	void nextTurn();
 
 private:
 	void setRandomColor();
 	const bool isOccupied(const int posX, const int posY);
+	void addSmallBalls();
 
 	Board board;
 	std::vector<std::shared_ptr<Ball>> balls;
