@@ -3,6 +3,7 @@
 #include "allmodels.h"
 #include "shaderprogram.h"
 #include <ctime>
+#include <iterator>
 Lines19::Lines19()
 {
 }
@@ -12,14 +13,24 @@ void Lines19::init()
 	int posX = -1;
 	int posY = -1;
 	std::srand(std::time(0));
-	for (int i = 0; i < INIT_BALL_COUNT; i++)
+	for (int i = 0; i < INIT_BIG_BALL_COUNT; i++)
 	{
 		do
 		{
 			posX = std::rand() % POS_X;
 			posY = std::rand() % POS_Y;
-		} while (board.isOccupied(posX, posY));
-		board.newBall(posX, posY);
+		} while (isOccupied(posX, posY));
+		balls.push_back(std::shared_ptr<Ball>(new Ball(posX, posY)));
+	}
+
+	for (int i = 0; i < SMALL_BALL_COUNT; i++)
+	{
+		do
+		{
+			posX = std::rand() % POS_X;
+			posY = std::rand() % POS_Y;
+		} while (isOccupied(posX, posY));
+		balls.push_back(std::shared_ptr<Ball>(new Ball(posX, posY, false)));
 	}
 }
 
@@ -43,22 +54,33 @@ void Lines19::fillBoardWithBalls()
 
 void Lines19::drawBalls()
 {
-	for (int j = 0; j < POS_Y; j++)
+	for (std::vector<std::shared_ptr<Ball>>::iterator it = std::begin(balls); it != std::end(balls); ++it)
 	{
-		for (int i = 0; i < POS_X; i++)
-		{
-			if (board.isOccupied(i, j))
-			{
-				glm::mat4 M = glm::mat4(1.0f);
+		const int posX = it->get()->getPosX();
+		const int posY = it->get()->getPosY();
+		const int colorId = it->get()->getColorId();
 
-				setColor(i, j);
-				M = glm::translate(M, glm::vec3(board.getTransX(j), board.getTransY(i), 0.0f));
-				M = glm::scale(M, glm::vec3(0.2f, 0.2f, 0.2f));
-				glUniformMatrix4fv(spLambert->u("M"), 1, false, glm::value_ptr(M));
-				Models::sphere.drawSolid();
-			}
+		glm::mat4 M = glm::mat4(1.0f);
+
+		glUniform4f(spLambert->u("color"), colors[colorId].getRed(), colors[colorId].getGreen(), colors[colorId].getBlue(), 1);
+		M = glm::translate(M, glm::vec3(board.getTransX(posX), board.getTransY(posY), 0.0f));
+		
+		if (!it->get()->isBigBall())
+		{
+			M = glm::scale(M, glm::vec3(0.1f, 0.1f, 0.1f));
 		}
+		else
+		{
+			M = glm::scale(M, glm::vec3(0.2f, 0.2f, 0.2f));
+		}
+
+		glUniformMatrix4fv(spLambert->u("M"), 1, false, glm::value_ptr(M));
+
+		
+
+		Models::sphere.drawSolid();
 	}
+
 }
 
 // learning purposes only!!!
@@ -68,8 +90,18 @@ void Lines19::setRandomColor()
 	glUniform4f(spLambert->u("color"), colors[colorId].getRed(), colors[colorId].getGreen(), colors[colorId].getBlue(), 1);
 }
 
-void Lines19::setColor(const int posX, const int posY)
+const bool Lines19::isOccupied(const int posX, const int posY)
 {
-	const int colorId = board.getBallColor(posX, posY);
-	glUniform4f(spLambert->u("color"), colors[colorId].getRed(), colors[colorId].getGreen(), colors[colorId].getBlue(), 1);
+	bool result = false;
+
+	for (std::vector<std::shared_ptr<Ball>>::iterator it = std::begin(balls); it != std::end(balls); ++it) 
+	{
+		if (it->get()->isSamePos(posX, posY))
+		{
+			result = true;
+			break;
+		}
+	}
+
+	return result;
 }

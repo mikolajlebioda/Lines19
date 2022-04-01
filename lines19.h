@@ -1,5 +1,7 @@
 #pragma once
 #include "board.h"
+#include <vector>
+#include <memory.h>
 
 class Colors
 {
@@ -27,7 +29,9 @@ static Colors colors[] =
 
 static const int POS_X = 9;
 static const int POS_Y = 9;
-static const int INIT_BALL_COUNT = 7;
+static const int INIT_BIG_BALL_COUNT = 7;
+static const int SMALL_BALL_COUNT = 3;
+
 
 class Lines19
 {
@@ -42,8 +46,9 @@ public:
 
 private:
 	void setRandomColor();
-	void setColor(const int posX, const int posY);
+	const bool isOccupied(const int posX, const int posY);
 
 	Board board;
+	std::vector<std::shared_ptr<Ball>> balls;
 };
 
